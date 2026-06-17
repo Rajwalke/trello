@@ -34,6 +34,7 @@ const userlist = [{
 const organizations = [
     {
         id: 1,
+        name:"zomato frontend",
         title: '100xdev',
         description: 'learning coding',
         admin: 1,
@@ -41,6 +42,7 @@ const organizations = [
     },
     {
         id: 2,
+        name:"zomato backend",
         title: 'personal',
         description: 'daily personal task',
         admin: 2,
@@ -117,7 +119,7 @@ app.post("/signin", (req, res) => {
 
     // check user signup or not 
     const checkuser = userlist.find(user => user.username === username && user.password === password);
-    console.log("current user", checkuser);
+    // console.log("current user", checkuser);
     if (!checkuser) {
         res.status(403).json({
             message: "Incorrect Credentials! Please Signup!"
@@ -143,19 +145,12 @@ app.post("/organization", authMiddleware, (req, res) => {
     const orgTitle = req.body.orgTitle;
     const adminid = req.id;
 
-    // const checkuser = userlist.filter((user) => {
-    //     return user.username === username;
-    // })
-    // if (!checkuser) {
-    //     res.status(403).json({
-    //         message: "User not found ! Please signin/signup"
-    //     })
-    //     return;
-    // }
-    console.log('checkuser', checkuser);
+    
+    // console.log('checkuser', checkuser);
     const id = organizations.length + 1;
     organizations.push({
         id: id,
+        name:orgName,
         title: orgTitle,
         description: orgDescription,
         admin: adminid,
@@ -171,7 +166,7 @@ app.post("/organization", authMiddleware, (req, res) => {
 app.post("/add-member-to-organization", authMiddleware, (req, res) => {
     const username = req.body.username;
     const adminid = req.id;
-    const organizationid = req.body.id;
+    const organizationid = parseInt(req.query.organizationid);
 
     const checkuser = userlist.find(user => user.username === username);
     if (!checkuser) {
@@ -182,7 +177,10 @@ app.post("/add-member-to-organization", authMiddleware, (req, res) => {
     }
 
     // check organization is exist and you are admin to send the request to member  ?
-    const checkorganization = organizations.find(org => org.id === organizationid);
+    // console.log(organizations)
+    const checkorganization = organizations.find(org => org.id == organizationid);
+    // console.log("admin id",adminid);
+    console.log("orgnization",checkorganization)
     if (!checkorganization || checkorganization.admin !== adminid) {
         res.status(403).json({
             message: "Organization not exist ! or you are not admin of that organization "
@@ -192,14 +190,15 @@ app.post("/add-member-to-organization", authMiddleware, (req, res) => {
     const check_user_already_exist = checkorganization.members.find(i => i === checkuser.id);
     if (check_user_already_exist) {
         res.status(403).json({
-            message: "User already having acess"
+            message: "User already having access"
         });
         return;
     }
     checkorganization.members.push(checkuser.id);
 
     res.send({
-        message: "Access Request send"
+        message: "Access Request send",
+        checkorganization
     })
 
 })
