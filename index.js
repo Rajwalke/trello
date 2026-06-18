@@ -180,7 +180,7 @@ app.post("/add-member-to-organization", authMiddleware, (req, res) => {
     // console.log(organizations)
     const checkorganization = organizations.find(org => org.id == organizationid);
     // console.log("admin id",adminid);
-    console.log("orgnization",checkorganization)
+    // console.log("orgnization",checkorganization)
     if (!checkorganization || checkorganization.admin !== adminid) {
         res.status(403).json({
             message: "Organization not exist ! or you are not admin of that organization "
@@ -200,6 +200,27 @@ app.post("/add-member-to-organization", authMiddleware, (req, res) => {
         message: "Access Request send",
         checkorganization
     })
+
+})
+
+// get all organizatio as per user 
+// take user id check in organization where user is present inside the member or not
+
+app.get("/user_organization",authMiddleware,(req,res)=>{
+    const userid=parseInt(req.id);
+    // user is admin of any organization
+    console.log("userid",userid);
+    const all_user_orgnization=organizations.filter((org)=>{
+        if(org.admin===userid ||  org.members.includes(userid)){
+            return org;
+        }
+    }
+    )
+
+    res.json({
+        all_user_orgnization
+    })
+    
 
 })
 
